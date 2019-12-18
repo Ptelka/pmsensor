@@ -5,5 +5,5 @@ do
   python3 ./get-measures.py || true
   python3 ./refresh.py || true
   echo ${i}
-  sleep 10s
+  fim -a current.jpg & sleep 10s
 done
