@@ -8,3 +8,5 @@ do
   echo ${i}
   fim -a current.png & sleep 3s
 done
+
+
