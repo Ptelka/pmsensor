@@ -16,7 +16,7 @@ pm_2_0s = []
 pm_10s = []
 
 for i in range(5):
-    r = requests.get('http://pmsensor.local/measures')
+    r = requests.get('http://pmsensor.local/measurements')
     result = json.loads(r.text)
     if result['ok']:
         pm_1s.append(result['PM1_0'])
