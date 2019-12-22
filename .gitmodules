@@ -1,0 +1,3 @@
+[submodule "PMS7003/PMS7003"]
+	path = PMS7003/PMS7003
+	url = https://github.com/Ptelka/PMS7003

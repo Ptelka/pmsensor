@@ -1,6 +1,6 @@
-#include "PMS.h"
+#include "PMS7003/PMS7003.h"
 #include <ESP8266WiFi.h>
-
+#include <SoftwareSerial.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
@@ -11,44 +11,44 @@
 #define D8 (15)
 #endif
 
-
 SoftwareSerial softwareSerial(D5, D6);
-pms::PMS7003 pms7003(softwareSerial);
-auto ssid = "Orange_Swiatlowod_2A92_2.4GHz";
-auto password = "";
+pms::Sensor<SoftwareSerial> pms7003(softwareSerial, pms::mode::active);
+
+auto ssid = "DASAN_6a";
+auto password = "zaq12wsx";
 
 ESP8266WebServer server(80);
 
-String toString(const pms::Measures& measures) {
-  if (!measures.is_ok) {
+String toString(const pms::Measurements& measurements) {
+  if (!measurements.is_ok) {
     return "{ \"ok\": false }";
   }
   String str = "{ \"ok\": true"
-               " ,\"PM1_0\": " + String(measures.PM1_0) + 
-               " ,\"PM2_5\": " + String(measures.PM2_5) + 
-               " ,\"PM10_0\": " + String(measures.PM10_0) +
+               " ,\"PM1_0\": " + String(measurements.atmospheric.PM1_0) + 
+               " ,\"PM2_5\": " + String(measurements.atmospheric.PM2_5) + 
+               " ,\"PM10_0\": " + String(measurements.atmospheric.PM10_0) +
                "}";
 
   return str;
 }
 
-void getMeasures() {
+void get_measurements() {
     Serial.println("trying to read from sensor");
 
-    auto measures = pms7003.read();
+    auto measurements = pms7003.read();
 
     Serial.print("OK: ");
-    Serial.println(measures.is_ok);
+    Serial.println(measurements.is_ok);
     Serial.print("PM 1: ");
-    Serial.println(measures.PM1_0);
+    Serial.println(measurements.atmospheric.PM1_0);
     Serial.print("PM 2.5: ");
-    Serial.println(measures.PM2_5);
+    Serial.println(measurements.atmospheric.PM2_5);
     Serial.print("PM 10.0: ");
-    Serial.println(measures.PM10_0);
+    Serial.println(measurements.atmospheric.PM10_0);
 
     Serial.println("sending");
 
-    server.send(200, "text/plain", toString(measures));
+    server.send(200, "text/plain", toString(measurements));
 }
 
 void handleNotFound() {
@@ -67,25 +67,27 @@ void wifiConnect() {
       Serial.print(".");
     }
   }
+
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void setup() {
-    Serial.begin(57600);
-    softwareSerial.begin(9600);
+    pinMode(D5, INPUT);
+    pinMode(D6, OUTPUT);
 
-    wifiConnect();
+    Serial.begin(57600);
     
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
+    wifiConnect();
 
     if (MDNS.begin("pmsensor")) {
       Serial.println("MDNS responder started");
     }
 
-    server.on("/measures", getMeasures);
+    server.on("/measurements", get_measurements);
     server.onNotFound(handleNotFound);
     server.begin();
 }
