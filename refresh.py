@@ -8,9 +8,9 @@ import matplotlib.ticker as ticker
 
 def get_data():
     connection = sqlite3.connect('measures.db')
-    #sql = "select strftime('%H:%M',time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
-    sql = "select time(time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
-    delta = datetime.timedelta(minutes=30)
+    sql = "select strftime('%H:%M',time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
+    #sql = "select time(time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
+    delta = datetime.timedelta(hours=24)
     query = sql.format(datetime.datetime.now() - delta)
     return pandas.read_sql_query(query, connection)
 
@@ -40,6 +40,7 @@ plot = seaborn.lineplot(
     hue='variable',
     data=data
 )
+
 plot.tick_params('x', labelrotation=30)
 
 plot.figure.savefig('current.png')
