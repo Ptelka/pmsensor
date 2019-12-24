@@ -8,7 +8,7 @@ import matplotlib.ticker as ticker
 
 def get_data():
     connection = sqlite3.connect('measures.db')
-    sql = "select strftime('%H:%M',time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
+    sql = "select strftime('%d %H:%M',time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
     #sql = "select time(time) as time, PM01_0, PM02_5, PM10_0 from measures where time > '{}'"
     delta = datetime.timedelta(hours=24)
     query = sql.format(datetime.datetime.now() - delta)
@@ -16,11 +16,9 @@ def get_data():
 
 
 def set_tick_properties(data_size):
-    if data_size > 10:
-        fig, ax = plt.subplots()
-        mp = ticker.MultipleLocator(10)
-        ax.xaxis.set_major_locator(mp)
-
+    fig, ax = plt.subplots()
+    mp = ticker.MultipleLocator(data_size/10)
+    ax.xaxis.set_major_locator(mp)
 
 data = get_data()
 
@@ -31,7 +29,7 @@ set_tick_properties(len(data))
 
 data = pandas.melt(data, ['time'])
 
-plt.ylim(0, max(250, data['value'].max()))
+plt.ylim(0, max(200, min(data['value'].max(), 300)))
 
 plot = seaborn.lineplot(
     palette="deep",
@@ -41,6 +39,6 @@ plot = seaborn.lineplot(
     data=data
 )
 
-plot.tick_params('x', labelrotation=30)
+plot.tick_params('x', labelrotation=21)
 
 plot.figure.savefig('current.png')
