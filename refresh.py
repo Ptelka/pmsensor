@@ -17,8 +17,9 @@ def get_data():
 
 def set_tick_properties(data_size):
     fig, ax = plt.subplots()
-    mp = ticker.MultipleLocator(data_size/10)
-    ax.xaxis.set_major_locator(mp)
+    if data_size > 10:
+    	mp = ticker.MultipleLocator(data_size/10)
+    	ax.xaxis.set_major_locator(mp)
 
 data = get_data()
 
